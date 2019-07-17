@@ -12,32 +12,37 @@
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
             android:ems="10"
-            android:id="@+id/editText"
+            android:id="@+id/email"
             tools:ignore="MissingConstraints" app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="76dp" android:layout_marginStart="96dp"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="96dp"/>
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="96dp"
+            android:hint="@string/email_hint"/>
     <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
             android:ems="10"
-            android:id="@+id/editText2"
-            tools:ignore="MissingConstraints" app:layout_constraintTop_toBottomOf="@+id/editText"
+            android:id="@+id/password"
+            tools:ignore="MissingConstraints" app:layout_constraintTop_toBottomOf="@+id/email"
             android:layout_marginTop="52dp" android:layout_marginStart="96dp"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="96dp"/>
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="96dp"
+            android:hint="@string/password_hint"/>
     <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" tools:srcCompat="@tools:sample/avatars[3]"
-            android:id="@+id/imageView"
-            tools:ignore="MissingConstraints" app:layout_constraintTop_toBottomOf="@+id/editText2"
-            android:layout_marginTop="80dp" android:visibility="visible" android:layout_marginStart="140dp"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="140dp"/>
+            android:layout_width="160dp"
+            android:layout_height="150dp"
+            android:src="@drawable/persoicon"
+            android:id="@+id/imagePerson"
+            tools:ignore="MissingConstraints" app:layout_constraintTop_toBottomOf="@+id/password"
+            android:layout_marginTop="72dp" android:visibility="visible"
+            android:layout_marginStart="124dp" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginLeft="124dp"/>
     <Button
-            android:text="Button"
+            android:text="@string/button_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/button" android:layout_marginTop="76dp"
-            app:layout_constraintTop_toBottomOf="@+id/imageView" tools:ignore="MissingConstraints"
+            android:id="@+id/login" android:layout_marginTop="76dp"
+            app:layout_constraintTop_toBottomOf="@+id/imagePerson" tools:ignore="MissingConstraints"
             android:layout_marginStart="160dp" app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginLeft="160dp"/>
+            android:layout_marginLeft="160dp" android:background="@android:color/holo_blue_bright"
+            android:onClick="checkLogin"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
