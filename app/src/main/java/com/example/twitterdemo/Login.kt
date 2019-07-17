@@ -12,18 +12,36 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_login.*
 
 class Login : AppCompatActivity() {
 
+    private var mAuth: FirebaseAuth?=null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        mAuth=FirebaseAuth.getInstance()
 
         imagePerson.setOnClickListener(View.OnClickListener {
             checkPermission()
 
         })
+    }
+
+    fun LoginToFirebase(email:String, password:String){
+        mAuth!!.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this){
+            task ->
+                if (task.isSuccessful){
+                    Toast.makeText(applicationContext, "Successful login", Toast.LENGTH_LONG).show()
+
+                    var currentUser=mAuth!!.currentUser
+                    //save in database
+
+                }else{
+                    Toast.makeText(applicationContext, "fail login", Toast.LENGTH_LONG).show()
+                }
+        }
     }
 
     val READIMAGE:Int=253
@@ -75,6 +93,6 @@ class Login : AppCompatActivity() {
     }
 
     fun checkLogin(view: View){
-
+        LoginToFirebase(email.text.toString(), password.text.toString())
     }
 }
