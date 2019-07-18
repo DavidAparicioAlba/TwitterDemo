@@ -3,7 +3,9 @@ package com.example.twitterdemo
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,11 +15,20 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_login.*
+import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 
 class Login : AppCompatActivity() {
 
     private var mAuth: FirebaseAuth?=null
+
+    private var database=FirebaseDatabase.getInstance()
+    private var myRef=database.reference
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -32,15 +43,68 @@ class Login : AppCompatActivity() {
     fun LoginToFirebase(email:String, password:String){
         mAuth!!.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this){
             task ->
+                Log.d("task successful?", task.isSuccessful.toString())
                 if (task.isSuccessful){
                     Toast.makeText(applicationContext, "Successful login", Toast.LENGTH_LONG).show()
 
-                    var currentUser=mAuth!!.currentUser
                     //save in database
+                    saveImageInFirebase()
 
                 }else{
                     Toast.makeText(applicationContext, "fail login", Toast.LENGTH_LONG).show()
                 }
+        }
+    }
+
+    fun saveImageInFirebase(){
+        var currentUser=mAuth!!.currentUser
+        val email=currentUser!!.email!!.toString()
+        val storage=FirebaseStorage.getInstance()
+        val storeageRef=storage.getReferenceFromUrl("gs://twitterdemo-fdd9d.appspot.com")
+        val df=SimpleDateFormat("ddMMyyHHmmss")
+        val dataobj= Date()
+        val imagePath=splitString(email)+df.format(dataobj)+".jpg"
+        val imageRef=storeageRef.child("/images"+imagePath)
+        imagePerson.isDrawingCacheEnabled=true
+        imagePerson.buildDrawingCache()
+
+        val drawable=imagePerson.drawable as BitmapDrawable
+        val bitmap=drawable.bitmap
+        val baos=ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val data = baos.toByteArray()
+        val uploadTask=imageRef.putBytes(data)
+        uploadTask.addOnFailureListener {
+            Log.d("fail to upload", imagePath)
+            Toast.makeText(applicationContext, "fail to upload", Toast.LENGTH_LONG).show()
+        }.addOnSuccessListener {taskSnapshot ->
+            var DownloadURL = taskSnapshot.storage.downloadUrl!!.toString()
+            Log.d("success url", DownloadURL)
+            myRef.child("Users").child(currentUser.uid).child("email").setValue(currentUser.email)
+            myRef.child("Users").child(currentUser.uid).child("ProfileImage").setValue(DownloadURL)
+            loadTweets()
+            Log.d("tweets loaded", "true")
+        }
+
+    }
+
+    fun splitString(email: String):String{
+        val split=email.split("@")
+        return split[0]
+    }
+
+    override fun onStart() {
+        super.onStart()
+        loadTweets()
+    }
+
+    fun loadTweets(){
+        var currentUser=mAuth!!.currentUser
+        if(currentUser!=null){
+            var intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("email", currentUser.email)
+            intent.putExtra("uid", currentUser.uid)
+            startActivity(intent)
         }
     }
 
@@ -93,6 +157,8 @@ class Login : AppCompatActivity() {
     }
 
     fun checkLogin(view: View){
+        Log.d("user", email.text.toString())
+        Log.d("password", password.text.toString())
         LoginToFirebase(email.text.toString(), password.text.toString())
     }
 }
