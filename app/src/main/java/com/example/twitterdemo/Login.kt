@@ -15,6 +15,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_login.*
@@ -24,7 +25,8 @@ import java.util.*
 
 class Login : AppCompatActivity() {
 
-    private var mAuth: FirebaseAuth?=null
+    private lateinit var mAuth: FirebaseAuth
+
 
     private var database=FirebaseDatabase.getInstance()
     private var myRef=database.reference
@@ -40,10 +42,11 @@ class Login : AppCompatActivity() {
         })
     }
 
-    fun LoginToFirebase(email:String, password:String){
-        mAuth!!.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this){
+
+    fun loginToFirebase(email:String, password:String){
+        mAuth!!.signInWithEmailAndPassword(email, password).addOnCompleteListener(this){
             task ->
-                Log.d("task successful?", task.isSuccessful.toString())
+            Log.d("task successful?", task.toString())
                 if (task.isSuccessful){
                     Toast.makeText(applicationContext, "Successful login", Toast.LENGTH_LONG).show()
 
@@ -95,6 +98,8 @@ class Login : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        val currentUser = mAuth!!.getCurrentUser()
+
         loadTweets()
     }
 
@@ -116,6 +121,8 @@ class Login : AppCompatActivity() {
                 return
             }
         }
+        Log.d("read storage permission", ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE).toString())
+        Log.d("read storage permission", PackageManager.PERMISSION_GRANTED.toString())
         loadImage()
     }
 
@@ -138,7 +145,7 @@ class Login : AppCompatActivity() {
 
         var intent=Intent(Intent.ACTION_PICK,
             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, PICK_IMAGE_CODE)
+        startActivityForResult(intent,PICK_IMAGE_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -159,6 +166,6 @@ class Login : AppCompatActivity() {
     fun checkLogin(view: View){
         Log.d("user", email.text.toString())
         Log.d("password", password.text.toString())
-        LoginToFirebase(email.text.toString(), password.text.toString())
+        loginToFirebase(email.text.toString(), email.text.toString())
     }
 }
