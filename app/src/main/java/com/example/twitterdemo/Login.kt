@@ -1,6 +1,6 @@
 package com.example.twitterdemo
 
-import android.app.Activity
+
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -15,7 +15,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_login.*
@@ -44,19 +43,25 @@ class Login : AppCompatActivity() {
 
 
     fun loginToFirebase(email:String, password:String){
-        mAuth!!.signInWithEmailAndPassword(email, password).addOnCompleteListener(this){
-            task ->
-            Log.d("task successful?", task.toString())
-                if (task.isSuccessful){
-                    Toast.makeText(applicationContext, "Successful login", Toast.LENGTH_LONG).show()
+        mAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d("message", "signInWithEmail:success")
+                    val user = mAuth.currentUser
 
-                    //save in database
                     saveImageInFirebase()
 
-                }else{
-                    Toast.makeText(applicationContext, "fail login", Toast.LENGTH_LONG).show()
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w("message", "signInWithEmail:failure", task.exception)
+                    Toast.makeText(baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show()
+
                 }
-        }
+
+            }
+
     }
 
     fun saveImageInFirebase(){
