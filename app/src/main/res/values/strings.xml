@@ -2,6 +2,15 @@
     <string name="app_name">Twitter</string>
     <string name="email_hint">enter your email</string>
     <string name="password_hint">enter your password</string>
+    <string name="post_tweet_hint">Post your article!</string>
     <string name="button_login">login</string>
     <string name="button_register">register</string>
+    <string name="send_description">send</string>
+    <string name="attach_description">attach</string>
+    <string name="favorite_description">favourite</string>
+    <string name="tweet_pick_desc">tweet</string>
+    <string name="persoicon_desc">persoicon</string>
+    <string name="text_usr_name">User name</string>
+    <string name="tweet_date">2015-12-11</string>
+    <string name="text_tweet">Love new twitter feathers, looking forword for new addation feather</string>
 </resources>

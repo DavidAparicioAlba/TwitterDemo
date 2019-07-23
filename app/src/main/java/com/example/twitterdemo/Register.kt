@@ -17,9 +17,7 @@ import kotlinx.android.synthetic.main.activity_register.*
 
 class Register : AppCompatActivity() {
 
-    private var mAuth: FirebaseAuth? = null
-    private var database= FirebaseDatabase.getInstance()
-    private var myRef=database.reference
+    private lateinit var mAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,12 +27,12 @@ class Register : AppCompatActivity() {
     }
 
     fun registerToFirebase(email:String, password:String){
-        mAuth!!.createUserWithEmailAndPassword(email, password)
+        mAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
+                Log.d("task successful?", task.isSuccessful.toString())
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
-                    Log.d("message", "account created")
-                    val user = mAuth!!.currentUser
+                    mAuth.signOut()
                     var intent = Intent(this, initActivity::class.java)
                     startActivity(intent)
 
@@ -58,8 +56,8 @@ class Register : AppCompatActivity() {
     }
 
     fun checkRegister(view: View){
-        Log.d("register user", email.text.toString())
-        Log.d("register password", password.text.toString())
+        Log.d("register user", editTextEmail.text.toString())
+        Log.d("register password", editTextPassword.text.toString())
         registerToFirebase(editTextEmail.text.toString(), editTextEmail.text.toString())
     }
 }
