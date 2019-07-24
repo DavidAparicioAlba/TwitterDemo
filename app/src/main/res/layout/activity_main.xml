@@ -7,4 +7,8 @@
         android:layout_height="match_parent"
         android:orientation="horizontal"
         android:background="@color/lightBackground"
-        tools:context=".MainActivity"/>
+        tools:context=".MainActivity">
+    <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" android:id="@+id/lvTweets"/>
+</LinearLayout>

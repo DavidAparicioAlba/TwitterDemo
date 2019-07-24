@@ -1,6 +1,7 @@
 package com.example.twitterdemo
 
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -30,6 +31,8 @@ class Login : AppCompatActivity() {
     private var database=FirebaseDatabase.getInstance()
     private var myRef=database.reference
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -39,16 +42,17 @@ class Login : AppCompatActivity() {
             checkPermission()
 
         })
+
     }
 
 
-    fun loginToFirebase(email:String, password:String){
+    private fun loginToFirebase(email:String, password:String){
         mAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("message", "signInWithEmail:success")
-                    val user = mAuth.currentUser
+
 
                     saveImageInFirebase()
 
@@ -64,8 +68,9 @@ class Login : AppCompatActivity() {
 
     }
 
+    @SuppressLint("SimpleDateFormat")
     fun saveImageInFirebase(){
-        var currentUser=mAuth!!.currentUser
+        val currentUser=mAuth.currentUser
         val email=currentUser!!.email!!.toString()
         val storage=FirebaseStorage.getInstance()
         val storeageRef=storage.getReferenceFromUrl("gs://twitterdemo-fdd9d.appspot.com")
@@ -86,7 +91,7 @@ class Login : AppCompatActivity() {
             Log.d("fail to upload", imagePath)
             Toast.makeText(applicationContext, "fail to upload", Toast.LENGTH_LONG).show()
         }.addOnSuccessListener {taskSnapshot ->
-            var DownloadURL = taskSnapshot.storage.downloadUrl!!.toString()
+            val DownloadURL = taskSnapshot.storage.downloadUrl.toString()
             Log.d("success url", DownloadURL)
             myRef.child("Users").child(currentUser.uid).child("email").setValue(currentUser.email)
             myRef.child("Users").child(currentUser.uid).child("ProfileImage").setValue(DownloadURL)
@@ -103,15 +108,15 @@ class Login : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        val currentUser = mAuth!!.getCurrentUser()
+        val currentUser = mAuth.getCurrentUser()
 
         loadTweets()
     }
 
     fun loadTweets(){
-        var currentUser=mAuth!!.currentUser
+        val currentUser=mAuth.currentUser
         if(currentUser!=null){
-            var intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             intent.putExtra("email", currentUser.email)
             intent.putExtra("uid", currentUser.uid)
             startActivity(intent)
@@ -148,7 +153,7 @@ class Login : AppCompatActivity() {
     val PICK_IMAGE_CODE=123
     fun loadImage(){
 
-        var intent=Intent(Intent.ACTION_PICK,
+        val intent=Intent(Intent.ACTION_PICK,
             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent,PICK_IMAGE_CODE)
     }
