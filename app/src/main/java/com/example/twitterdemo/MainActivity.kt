@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Toast
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_main.*
@@ -29,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     var myEmail:String?=null
     var userUID:String?=null
 
-    private var database= FirebaseDatabase.getInstance()
+    private var database=FirebaseDatabase.getInstance()
     private var myRef=database.reference
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +70,7 @@ class MainActivity : AppCompatActivity() {
                 })
 
                 myView.iv_post.setOnClickListener(View.OnClickListener {
-                    myRef.child("posts").push().setValue(PostInfo(userUID!!, myView.etPost.text.toString(), DownloadURL!!))
+                    myRef.child("Posts").child(userUID.toString()).setValue(PostInfo(userUID.toString(), myView.etPost.text.toString(), DownloadURL.toString()))
 
                     myView.etPost.setText("")
                 })
