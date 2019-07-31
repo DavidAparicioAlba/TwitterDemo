@@ -12,14 +12,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Toast
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import androidx.core.net.toUri
+import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.add_ticket.view.*
+import kotlinx.android.synthetic.main.tweets_ticket.view.*
 import java.io.ByteArrayOutputStream
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,6 +36,7 @@ class MainActivity : AppCompatActivity() {
 
     private var database=FirebaseDatabase.getInstance()
     private var myRef=database.reference
+    var postNumber:Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,14 +47,11 @@ class MainActivity : AppCompatActivity() {
         userUID= b!!.getString("uid")
         // dummy data
         ListTweets.add(Ticket("0", "him", "url", "add"))
-        ListTweets.add(Ticket("0", "him", "url", "deivit"))
-        ListTweets.add(Ticket("0", "him", "url", "deivit"))
-        ListTweets.add(Ticket("0", "him", "url", "deivit"))
 
-
+        postNumber=ListTweets.size-1
         adapter = MyTweetAdapter(this, ListTweets)
         lvTweets.adapter=adapter
-
+        loadPosts()
     }
 
     inner class MyTweetAdapter: BaseAdapter {
@@ -70,7 +72,8 @@ class MainActivity : AppCompatActivity() {
                 })
 
                 myView.iv_post.setOnClickListener(View.OnClickListener {
-                    myRef.child("Posts").child(userUID.toString()).setValue(PostInfo(userUID.toString(), myView.etPost.text.toString(), DownloadURL.toString()))
+                    myRef.child("Posts").child(postNumber.toString()).setValue(PostInfo(userUID.toString(), myView.etPost.text.toString(), DownloadURL.toString()))
+                    postNumber++
 
                     myView.etPost.setText("")
                 })
@@ -78,6 +81,9 @@ class MainActivity : AppCompatActivity() {
             }else{
                 var myView = layoutInflater.inflate(R.layout.tweets_ticket, null)
                 //load tweet ticket
+                myView.txt_tweet.setText(myTweet.tweetText)
+                myView.txtUserName.setText(myTweet.personId)
+                Picasso.with(context).load(myTweet.tweetImageURL).into(myView.tweet_picture)
 
                 return myView
             }
@@ -124,7 +130,7 @@ class MainActivity : AppCompatActivity() {
         val df= SimpleDateFormat("ddMMyyHHmmss")
         val dataobj= Date()
         val imagePath=splitString(myEmail!!)+df.format(dataobj)+".jpg"
-        val imageRef=storeageRef.child("/imagesPost"+imagePath)
+        val imageRef=storeageRef.child("/imagesPost").child(imagePath)
 
         val baos= ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
@@ -142,4 +148,37 @@ class MainActivity : AppCompatActivity() {
         val split=email.split("@")
         return split[0]
     }
+
+    fun loadPosts(){
+        myRef.child("posts").addValueEventListener(object: ValueEventListener{
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                try{
+
+                    ListTweets.clear()
+                    ListTweets.add(Ticket("0", "him", "url", "add"))
+                    var td = dataSnapshot!!.value as HashMap<String, Any>
+
+                    for (key in td.keys){
+
+                        var post = td[key] as HashMap<String, Any>
+                        ListTweets.add(
+                            Ticket(key,
+                            post["text"] as String,
+                            post["postImage"] as String,
+                            post["userUID"] as String)
+                        )
+                    }
+                    adapter!!.notifyDataSetChanged()
+                }catch (ex:Exception){
+
+                }
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+        })
+    }
 }
+

@@ -77,7 +77,7 @@ class Login : AppCompatActivity() {
         val df=SimpleDateFormat("ddMMyyHHmmss")
         val dataobj= Date()
         val imagePath=splitString(email)+df.format(dataobj)+".jpg"
-        val imageRef=storeageRef.child("/images"+imagePath)
+        val imageRef=storeageRef.child("/images").child(imagePath)
         imagePerson.isDrawingCacheEnabled=true
         imagePerson.buildDrawingCache()
 
