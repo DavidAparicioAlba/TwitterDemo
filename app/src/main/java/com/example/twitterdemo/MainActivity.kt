@@ -28,7 +28,6 @@ import kotlin.collections.HashMap
 class MainActivity : AppCompatActivity() {
 
     var ListTweets = ArrayList<Ticket>()
-
     var adapter:MyTweetAdapter?=null
 
     var myEmail:String?=null
@@ -36,7 +35,6 @@ class MainActivity : AppCompatActivity() {
 
     private var database=FirebaseDatabase.getInstance()
     private var myRef=database.reference
-    var postNumber:Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,10 +44,9 @@ class MainActivity : AppCompatActivity() {
         myEmail= b!!.getString("email")
         userUID= b!!.getString("uid")
         // dummy data
-        ListTweets.add(Ticket("0", "him", "url", "add"))
 
-        postNumber=ListTweets.size-1
-        adapter = MyTweetAdapter(this, ListTweets)
+        loadPosts()
+        adapter= MyTweetAdapter(this, ListTweets)
         lvTweets.adapter=adapter
         loadPosts()
     }
@@ -72,8 +69,7 @@ class MainActivity : AppCompatActivity() {
                 })
 
                 myView.iv_post.setOnClickListener(View.OnClickListener {
-                    myRef.child("Posts").child(postNumber.toString()).setValue(PostInfo(userUID.toString(), myView.etPost.text.toString(), DownloadURL.toString()))
-                    postNumber++
+                    myRef.child("Posts").push().setValue(PostInfo(userUID.toString(), myView.etPost.text.toString(), DownloadURL.toString()))
 
                     myView.etPost.setText("")
                 })
@@ -150,35 +146,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loadPosts(){
-        myRef.child("posts").addValueEventListener(object: ValueEventListener{
+        myRef.child("Posts")
+            .addValueEventListener(object :ValueEventListener{
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    try {
+                        ListTweets.clear()
+                        ListTweets.add(Ticket("0","him","url","add"))
 
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                try{
-
-                    ListTweets.clear()
-                    ListTweets.add(Ticket("0", "him", "url", "add"))
-                    var td = dataSnapshot!!.value as HashMap<String, Any>
-
-                    for (key in td.keys){
-
-                        var post = td[key] as HashMap<String, Any>
-                        ListTweets.add(
-                            Ticket(key,
-                            post["text"] as String,
-                            post["postImage"] as String,
-                            post["userUID"] as String)
-                        )
-                    }
-                    adapter!!.notifyDataSetChanged()
-                }catch (ex:Exception){
-
+                        var td= dataSnapshot!!.value as HashMap<String,Any>
+                        for(key in td.keys){
+                            var post= td[key] as HashMap<String,Any>
+                            ListTweets.add(Ticket(key,
+                                post["text"] as String,
+                                post["postImage"] as String
+                                ,post["userUID"] as String))
+                        }
+                        adapter!!.notifyDataSetChanged()
+                        Log.d("tweets length", ListTweets.size.toString())
+                    }catch (ex:Exception){}
                 }
-            }
-
-            override fun onCancelled(p0: DatabaseError) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-        })
+                override fun onCancelled(p0: DatabaseError) {
+                }
+            })
     }
 }
 
