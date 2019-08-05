@@ -79,7 +79,26 @@ class MainActivity : AppCompatActivity() {
                 //load tweet ticket
                 myView.txt_tweet.setText(myTweet.tweetText)
                 myView.txtUserName.setText(myTweet.personId)
-                Picasso.with(context).load(myTweet.tweetImageURL).into(myView.tweet_picture)
+
+
+                myRef.child("Users").child(myTweet.personId!!)
+                    .addValueEventListener(object :ValueEventListener{
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            try {
+                                var td= dataSnapshot!!.value as HashMap<String,Any>
+                                for(key in td.keys){
+                                    var userInfo= td[key] as String
+                                    if (key.equals("ProfileImage")){
+                                        Picasso.with(context).load(userInfo).into(myView.picture_path)
+                                    }else{
+                                        myView.txtUserName.setText(userInfo)
+                                    }
+                                }
+                            }catch (ex:Exception){}
+                        }
+                        override fun onCancelled(p0: DatabaseError) {
+                        }
+                    })
 
                 return myView
             }
